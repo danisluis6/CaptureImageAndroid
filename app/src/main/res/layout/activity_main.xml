@@ -4,23 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context="vuongluis.myapplication.MainActivity">
+    tools:context="vuongluis.myapplication.ActivityCameraTest">
 
     <ImageView
-        android:id="@+id/result"
-        android:layout_width="350dp"
-        android:layout_height="350dp"
+        android:id="@+id/imvTakeAPhoto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_centerHorizontal="true"/>
-
-    <Button
-        android:id="@+id/button"
-        android:text="Capture"
-        android:layout_marginTop="16dp"
-        android:layout_below="@id/result"
-        android:paddingRight="16dp"
-        android:paddingLeft="16dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"/>
-
 </RelativeLayout>

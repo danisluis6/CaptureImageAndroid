@@ -8,11 +8,11 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -23,10 +23,9 @@ import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
-public class MainActivity extends AppCompatActivity {
+public class ActivityCameraTest extends AppCompatActivity {
 
-    private Button button;
-    private ImageView result;
+    private ImageView imvTakeAPhoto;
     private Bitmap photo;
 
     private final int CAMERA_REQUEST = 2;
@@ -83,10 +82,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initComponents() {
-        button = (Button)this.findViewById(R.id.button);
-        result = (ImageView)this.findViewById(R.id.result);
-
-        button.setOnClickListener(new View.OnClickListener() {
+        imvTakeAPhoto = (ImageView)this.findViewById(R.id.imvTakeAPhoto);
+        imvTakeAPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -99,22 +96,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             previewCapturedImage(data);
-
-            // Call this method to get the uri from the bitmap
             Uri tempUri = getImageUri(getApplicationContext(), photo);
-
-            // Call the method to get the actual path
             File finalFile = new File(getRealPathFromURI(tempUri));
-
-            String encodedImage = encodeImage(photo);
-            Log.d("TAG",encodedImage);
+            Log.i("TAG", "finalFile.getName(): "+finalFile.getName());
         }
 
     }
 
     private void previewCapturedImage(Intent data) {
         photo = (Bitmap) data.getExtras().get("data");
-        result.setImageBitmap(photo);
+        imvTakeAPhoto.setImageBitmap(photo);
     }
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
