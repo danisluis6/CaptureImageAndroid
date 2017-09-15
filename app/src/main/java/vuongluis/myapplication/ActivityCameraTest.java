@@ -13,14 +13,11 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 public class ActivityCameraTest extends AppCompatActivity {
@@ -30,8 +27,12 @@ public class ActivityCameraTest extends AppCompatActivity {
 
     private final int CAMERA_REQUEST = 2;
     private final int MY_PERMISSIONS_REQUEST_CODE = 1;
+    private final String FAXAGE_IMAGE = "EzFaxing_";
+    private final String FAXAGE_DESCRIPTION = "EzFaxing__";
 
-    /** Check permission for Android with version >= 6.0 **/
+    /**
+     * Check permission for Android with version >= 6.0
+     **/
     private boolean checkPermissions() {
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -55,7 +56,7 @@ public class ActivityCameraTest extends AppCompatActivity {
 
         if (isGranted) {
             startApplication();
-        }else{
+        } else {
             Toast.makeText(this, "Permission denied", Toast.LENGTH_LONG).show();
         }
     }
@@ -73,7 +74,6 @@ public class ActivityCameraTest extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         if (checkPermissions()) {
             startApplication();
         } else {
@@ -82,7 +82,7 @@ public class ActivityCameraTest extends AppCompatActivity {
     }
 
     private void initComponents() {
-        imvTakeAPhoto = (ImageView)this.findViewById(R.id.imvTakeAPhoto);
+        imvTakeAPhoto = (ImageView) this.findViewById(R.id.imvTakeAPhoto);
         imvTakeAPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,39 +95,41 @@ public class ActivityCameraTest extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
-            previewCapturedImage(data);
-            Uri tempUri = getImageUri(getApplicationContext(), photo);
-            File finalFile = new File(getRealPathFromURI(tempUri));
-            Log.i("TAG", "finalFile.getName(): "+finalFile.getName());
+            setImageView(data);
+            Uri selectedImageUri = data.getData();
+            Log.i("TAG", "Uri: "+selectedImageUri);
+            if (selectedImageUri != null) {
+                // Get path of image from Gallery
+                String selectedImagePath = getRealPathFromURI(selectedImageUri);
+                Log.i("TAG", "PATH: " + selectedImagePath);
+            } else {
+                // Null and we need to insert new image
+                Uri tempUri = getImageUri(getApplicationContext(), photo);
+                File file = new File(getRealPathFromURI(tempUri));
+                Log.i("TAG", "PATH: " + file.getAbsolutePath());
+            }
         }
-
     }
 
-    private void previewCapturedImage(Intent data) {
-        photo = (Bitmap) data.getExtras().get("data");
-        imvTakeAPhoto.setImageBitmap(photo);
+    public String getRealPathFromURI(Uri contentUri) {
+        String res = null;
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
+        if(cursor.moveToFirst()){;
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            res = cursor.getString(column_index);
+        }
+        cursor.close();
+        return res;
     }
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, FAXAGE_IMAGE, FAXAGE_DESCRIPTION);
         return Uri.parse(path);
     }
 
-    public String getRealPathFromURI(Uri uri) {
-        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-        cursor.moveToFirst();
-        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-        return cursor.getString(idx);
-    }
-
-    private String encodeImage(Bitmap bm)
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG,100,baos);
-        byte[] b = baos.toByteArray();
-        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
-        return encImage;
+    public void setImageView(Intent data) {
+        photo = (Bitmap) data.getExtras().get("data");
+        imvTakeAPhoto.setImageBitmap(photo);
     }
 }
