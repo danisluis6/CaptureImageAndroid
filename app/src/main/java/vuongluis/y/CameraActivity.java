@@ -1,4 +1,4 @@
-package vuongluis.myapplication;
+package vuongluis.y;
 
 import android.Manifest;
 import android.app.Activity;
@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import java.io.File;
 
-public class ActivityCameraTest extends AppCompatActivity {
+public class CameraActivity extends AppCompatActivity {
 
     private ImageView imvTakeAPhoto;
     private Bitmap photo;
